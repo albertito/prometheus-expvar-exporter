@@ -58,6 +58,7 @@ func main() {
 		prometheus.MustRegister(c)
 	}
 
+	http.HandleFunc("/", indexHandler)
 	http.Handle("/metrics", promhttp.Handler())
 
 	addr := config.Get("listen_addr").(string)
@@ -171,4 +172,28 @@ func valToFloat(v interface{}) float64 {
 		return 0.0
 	}
 	panic(fmt.Sprintf("unexpected value type: %#v"))
+}
+
+const indexHTML = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>expvar exporter</title>
+  </head>
+  <body>
+    <h1>Prometheus expvar exporter</h1>
+
+    This is a <a href="https://prometheus.io">Prometheus</a>
+    <a href="https://prometheus.io/docs/instrumenting/exporters/">exporter</a>,
+    takes <a href="https://golang.org/pkg/expvar/">expvars</a> and converts
+    them to Prometheus metrics.<p>
+
+    Go to <tt><a href="/metrics">/metrics</a></tt> to see the exported metrics.
+
+  </body>
+</html
+`
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(indexHTML))
 }
