@@ -162,7 +162,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		default:
 			// TODO: support nested labels / richer structures?
-			fmt.Printf("XXX %q %#v\n", name, v)
+			//fmt.Printf("Not supported: %q %#v\n", name, v)
 			continue
 		}
 	}
