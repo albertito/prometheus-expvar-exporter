@@ -97,12 +97,14 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	resp, err := http.Get(c.url)
 	if err != nil {
-		panic(err)
+		log.Printf("Error scraping %q: %v", c.url, err)
+		return
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("Error reading body of %q: %v", c.url, err)
+		return
 	}
 
 	// Replace "\xNN" with "?" because the default parser doesn't handle them
@@ -115,7 +117,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	var vs map[string]interface{}
 	err = json.Unmarshal(body, &vs)
 	if err != nil {
-		panic(err)
+		log.Printf("Error unmarshalling json from %q: %v", c.url, err)
+		return
 	}
 
 	for k, v := range vs {
