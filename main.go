@@ -61,6 +61,9 @@ func main() {
 	http.HandleFunc("/", indexHandler)
 	http.Handle("/metrics", promhttp.Handler())
 
+	if !config.Has("listen_addr") {
+		log.Fatal("Configuration has no listen_addr")
+	}
 	addr := config.Get("listen_addr").(string)
 	log.Printf("Listening on %q", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
