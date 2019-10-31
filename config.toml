@@ -1,0 +1,32 @@
+
+# Address to listen on. Prometheus should be told to scrape this.
+listen_addr = ":8080"
+
+
+# Expvar target.
+# Name is for description only. There can be multiple of these.
+[myserver]
+
+# URL with the expvars to scrape and export.
+url = "http://localhost:20099/debug/vars"
+
+# From here on, everything is optional.
+
+# List of variables to export.
+# By default, the exporter will try to auto-convert all expvars.  It is only
+# able to auto-convert float and boolean expvars without labels.
+#
+# In the configuration we can manually tell the exporter how to name the
+# prometheus variables, which help message to use, and support labels (single
+# level).
+#
+# Each variable is configured the following way:
+#   m.<prometheus name>.expvar = "<expvar name>"
+#   m.<prometheus name>.help = "<prometheus help message>"
+#   m.<prometheus name>.label_name = "<expvar label name>"
+
+m.var_a.expvar = "variable-a"
+
+m.var_b.expvar = "variable-b"
+m.var_b.help = "this is a counter of Bs, per hour of the day"
+m.var_b.label_name = "hour_of_day"
