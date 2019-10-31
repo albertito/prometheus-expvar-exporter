@@ -42,6 +42,9 @@ func main() {
 			labelName: map[string]string{},
 		}
 
+		if !config.Has(t + ".m") {
+			continue
+		}
 		for _, name := range config.Get(t + ".m").(*toml.Tree).Keys() {
 			info := config.Get(t + ".m." + name).(*toml.Tree)
 			expvar := info.Get("expvar").(string)
