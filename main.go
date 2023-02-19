@@ -178,7 +178,7 @@ func valToFloat(v interface{}) float64 {
 		}
 		return 0.0
 	}
-	panic(fmt.Sprintf("unexpected value type: %#v"))
+	panic(fmt.Sprintf("unexpected value type: %#v", v))
 }
 
 const indexHTML = `<!DOCTYPE html>
