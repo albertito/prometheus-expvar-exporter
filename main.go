@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/pelletier/go-toml"
 	"github.com/prometheus/client_golang/prometheus"
@@ -122,7 +123,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for k, v := range vs {
-		name := strings.ReplaceAll(k, "/", "_")
+		name := sanitizeMetricName(k)
 		if n, ok := c.names[k]; ok {
 			name = n
 		}
@@ -179,6 +180,46 @@ func valToFloat(v interface{}) float64 {
 		return 0.0
 	}
 	panic(fmt.Sprintf("unexpected value type: %#v", v))
+}
+
+func sanitizeMetricName(n string) string {
+	// Prometheus metric names must match the regex
+	// `[a-zA-Z_:][a-zA-Z0-9_:]*`.
+	// https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels
+	//
+	// This function replaces all non-matching ASCII characters with
+	// underscores.
+	//
+	// In particular, it is common that expvar names contain `/` or `-`, which
+	// we replace with `_` so they end up resembling more Prometheus-ideomatic
+	// names.
+	//
+	// Non-ascii characters are not supported, and will panic as so to force
+	// users to handle them explicitly.  There is no good way to handle all of
+	// them automatically, as they can't be all reasonably mapped to ascii. In
+	// the future, we may handle _some_ of them automatically when possible.
+	// But for now, forcing the users to be explicit is the safest option, and
+	// also ensures forwards compatibility.
+	return strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' {
+			return r
+		}
+		if r >= 'A' && r <= 'Z' {
+			return r
+		}
+		if r >= '0' && r <= '9' {
+			return r
+		}
+		if r == '_' || r == ':' {
+			return r
+		}
+		if r > unicode.MaxASCII {
+			panic(fmt.Sprintf(
+				"non-ascii character %q is unsupported, please configure the metric %q explicitly",
+				r, n))
+		}
+		return '_'
+	}, n)
 }
 
 const indexHTML = `<!DOCTYPE html>
