@@ -12,6 +12,9 @@ url = "http://localhost:20099/debug/vars"
 
 # From here on, everything is optional.
 
+# If you want to disable TLS checking for the URL, set this.
+#insecure = true
+
 # List of variables to export.
 # By default, the exporter will try to auto-convert all expvars.  It is only
 # able to auto-convert float and boolean expvars without labels.

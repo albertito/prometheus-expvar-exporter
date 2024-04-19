@@ -3,6 +3,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -43,6 +44,10 @@ func main() {
 			labelName: map[string]string{},
 		}
 
+		if config.Has(t + ".insecure") {
+			c.insecure = config.Get(t + ".insecure").(bool)
+		}
+
 		mnames := config.GetDefault(t+".m", &toml.Tree{}).(*toml.Tree).Keys()
 		for _, name := range mnames {
 			info := config.Get(t + ".m." + name).(*toml.Tree)
@@ -75,6 +80,9 @@ type Collector struct {
 	// URL to collect from.
 	url string
 
+	// Disable TLS checking for this URL.
+	insecure bool
+
 	// expvar -> prometheus name
 	names map[string]string
 
@@ -95,8 +103,18 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	return
 }
 
+func (c *Collector) GetURL() (*http.Response, error) {
+	client := &http.Client{}
+	if c.insecure {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+	return client.Get(c.url)
+}
+
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	resp, err := http.Get(c.url)
+	resp, err := c.GetURL()
 	if err != nil {
 		log.Printf("Error scraping %q: %v", c.url, err)
 		return
