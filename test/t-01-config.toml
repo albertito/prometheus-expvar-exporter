@@ -1,0 +1,7 @@
+listen_addr = ":30080"
+
+[target]
+url = "http://localhost:30081/t-01-config.vars"
+
+m.with_unsup.expvar = "with/unsupported-characters"
+m.with_unsup.help = "This is very helpful"

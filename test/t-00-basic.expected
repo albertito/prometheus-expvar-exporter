@@ -1,0 +1,9 @@
+# HELP a_float expvar "a-float"
+# TYPE a_float untyped
+a_float 1.2
+# HELP an_int expvar "an-int"
+# TYPE an_int untyped
+an_int 26
+# HELP with_unsupported_characters expvar "with/unsupported-characters"
+# TYPE with_unsupported_characters untyped
+with_unsupported_characters 55
